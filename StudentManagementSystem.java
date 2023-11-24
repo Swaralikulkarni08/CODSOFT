@@ -9,13 +9,14 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Scanner;
 
 public class StudentManagementSystem {
-	PreparedStatement pst=null;
-	ResultSet rs=null;
 	int res=0,roll;
 	static int ch;
+	static Connection con=null;
+	static PreparedStatement pst=null;
+	static ResultSet rs=null;
 	static Scanner sc = new Scanner(System.in);
 	Student s = new Student();
-	static Connection con=null;
+	
 	public static void main(String[] args) {
 	
 		StudentManagementSystem sms = new StudentManagementSystem();
@@ -27,32 +28,43 @@ public class StudentManagementSystem {
 			}else {
 				System.out.println("Connection not created successfully!");
 			}
+			do {
+				System.out.println("1. Add a Student\n2. Remove a Student\n3. Search for a Student\n4. Display a Student\n5. Update a Student\n6. Exit");
+				System.out.println("Enter your choice :");
+				ch=sc.nextInt();
+				switch(ch) {
+					case 1: sms.addStudent();
+							break;
+					case 2: sms.removeStudent();
+							break;
+					case 3: sms.searchStudent();
+							break;
+					case 4: sms.displayStudent();
+							break;
+					case 5: sms.updateStudent();
+							break;
+					case 6: System.out.println("Exiting....");
+						    System.exit(0);
+					default: System.out.println("Enter valid choice!");
+				}
+			}while(ch!=6);
 		} catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		
-		do {
-			System.out.println("1. Add a Student\n2. Remove a Student\n3. Search for a Student\n4. Display a Student\n5. Update a Student\n6. Exit");
-			System.out.println("Enter your choice :");
-			ch=sc.nextInt();
-			switch(ch) {
-				case 1: sms.addStudent();
-						break;
-				case 2: sms.removeStudent();
-						break;
-				case 3: sms.searchStudent();
-						break;
-				case 4: sms.displayStudent();
-						break;
-				case 5: sms.updateStudent();
-						break;
-				case 6: System.out.println("Exiting....");
-					    System.exit(0);
-				default: System.out.println("Enter valid choice!");
+		finally {
+			try {
+				rs.close();
+				pst.close();
+				con.close();
+				sc.close();
+				} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		}while(ch!=6);
+			
+			
+		}
 	}
 
 	private void updateStudent() {
@@ -64,7 +76,7 @@ public class StudentManagementSystem {
 		System.out.println("Enter grade of student to be updated: ");
 		s.grade=sc.next().charAt(0);
 		try {
-			pst=con.prepareStatement("update addstudent set name=?, grade=? where rollno=?");
+			pst=con.prepareStatement("update student set name=?, grade=? where rollno=?");
 			pst.setString(1, s.name);
 			pst.setObject(2, s.grade, java.sql.Types.CHAR);
 	        pst.setInt(3, roll);
@@ -83,7 +95,7 @@ public class StudentManagementSystem {
 	private void displayStudent() {
 		// TODO Auto-generated method stub
 		try {
-			pst=con.prepareStatement("select * from addstudent");
+			pst=con.prepareStatement("select * from student");
 			rs=pst.executeQuery();
 			System.out.println("Name\tRoll No\tGrade");
 			while(rs.next()) {
@@ -101,7 +113,7 @@ public class StudentManagementSystem {
 		System.out.println("Enter roll no of student to be searched:");
 		roll=sc.nextInt();
 		try {
-			pst=con.prepareStatement("select name,grade from addstudent where rollno=?");
+			pst=con.prepareStatement("select name,grade from student where rollno=?");
 			pst.setInt(1, roll);
 			rs=pst.executeQuery();
 			while(rs.next()) {
@@ -121,7 +133,7 @@ public class StudentManagementSystem {
 		System.out.println("Enter roll no of student to be deleted :");
 		roll=sc.nextInt();
 		try {
-			pst=con.prepareStatement("delete from addstudent where rollno=?");
+			pst=con.prepareStatement("delete from student where rollno=?");
 			pst.setInt(1, roll);
 			res=pst.executeUpdate();
 			if(res>0) {
@@ -141,7 +153,7 @@ public class StudentManagementSystem {
 		System.out.println("How many students you want to add: ");
 		num=sc.nextInt();
 		try {
-		 pst=con.prepareStatement("insert into addstudent values(?,?,?)");
+		 pst=con.prepareStatement("insert into student values(?,?,?)");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
